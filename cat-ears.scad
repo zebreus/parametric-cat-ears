@@ -3,9 +3,9 @@
 // Radius of the circle that makes up the upper half of the headband
 upperRadius = 60; // [20:120]
 // This angle determines the size of the bottom half
-bottomAngle = 35; // [0:120]
+bottomAngle = 50; // [0:120]
 // Radius of the partial circles of the bottom half
-bottomRadius = 120; // [20:600]
+bottomRadius = 100; // [20:600]
 // Radius of the end bits at the very bottom
 endRadius = 10; // [0:50]
 
@@ -17,12 +17,12 @@ width = 2.7; // [0:0.1:30]
 /*[ Ears ]*/
 
 // Where the ears are located on the headband
-earPositionAngle = 37; // [0:90]
+earPositionAngle = 40; // [0:90]
 
 // Radius of the curvature of the ears sides
 earRadius = 100; // [10:500]
 // Roughly the length of the ears
-earLength = 46; // [10:500]
+earLength = 50; // [10:500]
 // The width of the ears
 earWidth = 44; // [10:120]
 // Radius of the ears tips. 0 for spiky ears
@@ -33,17 +33,17 @@ earTipAngle = 90; // [0:180]
 /*[ Spikes ]*/
 
 // How much of the upper ring has spikes (in degrees)
-spikesAngle = 70; // [0:90]
+spikesAngle = 75; // [0:90]
 // How long the spikes are. Increase for more grip
-spikeDepth = 1.2; // [0:0.1:10]
+spikeDepth = 1.5; // [0:0.1:10]
 // How high the spikes are.
 spikeHeight = 3; // [0:0.1:10]
 // How high the spikes are at the tip.
 spikeHeightEnd = 1.5; // [0:0.1:10]
 // How wide the spikes are.
-spikeWidth = 1.5; // [0:0.1:20]
+spikeWidth = 1; // [0:0.1:20]
 // Spikes per cm
-spikeDensity = 3; // [0.1:0.01:20]
+spikeDensity = 4; // [0.1:0.01:20]
 
 module mirror_copy(vector)
 {
