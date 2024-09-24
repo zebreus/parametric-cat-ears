@@ -1,13 +1,13 @@
 /*[ Headband ]*/
 
 // Radius of the circle that makes up the upper half of the headband
-upper_radius = 60; // [20:120]
+upperRadius = 60; // [20:120]
 // This angle determines the size of the bottom half
-bottom_angle = 35; // [0:120]
+bottomAngle = 35; // [0:120]
 // Radius of the partial circles of the bottom half
-bottom_radius = 120; // [20:600]
+bottomRadius = 120; // [20:600]
 // Radius of the end bits at the very bottom
-end_radius = 10; // [0:50]
+endRadius = 10; // [0:50]
 
 // Height of the headband
 height = 6; // [0:30]
@@ -17,33 +17,33 @@ width = 2.7; // [0:30]
 /*[ Ears ]*/
 
 // Where the ears are located on the headband
-ear_position_angle = 37; // [0:90]
+earPositionAngle = 37; // [0:90]
 
 // Radius of the curvature of the ears sides
-ear_radius = 100; // [10:500]
+earRadius = 100; // [10:500]
 // Roughly the length of the ears
-ear_length = 46; // [10:500]
+earLength = 46; // [10:500]
 // The width of the ears
-ear_width = 44; // [10:120]
+earWidth = 44; // [10:120]
 // Radius of the ears tips. 0 for spiky ears
-ear_tip_radius = 3; // [0:100]
+earTipRadius = 3; // [0:100]
 // How big the angle of the ear tips is
-ear_tip_angle = 90; // [0:180]
+earTipAngle = 90; // [0:180]
 
 /*[ Spikes ]*/
 
 // How much of the upper ring has spikes (in degrees)
-spikes_angle = 70; // [0:90]
+spikesAngle = 70; // [0:90]
 // How long the spikes are. Increase for more grip
-spike_depth = 1.2; // [0:10]
+spikeDepth = 1.2; // [0:10]
 // How high the spikes are.
-spike_height = height / 2; // [0:10]
+spikeHeight = height / 2; // [0:10]
 // How high the spikes are at the tip.
-spike_height_end = height / 4; // [0:10]
+spikeHeightEnd = height / 4; // [0:10]
 // How wide the spikes are.
-spike_width = 1.5; // [0:20]
+spikeWidth = 1.5; // [0:20]
 // Spikes per cm
-spike_density = 3; // [0.01:30]
+spikeDensity = 3; // [0.01:30]
 
 module mirror_copy(vector)
 {
@@ -82,28 +82,28 @@ module shift_angled(r = 0, angle = 0, off = 0)
 // A single ear. Centered
 module ear()
 {
-	full_circumference = 2 * 3.1415 * ear_radius;
-	angle = (ear_length / full_circumference) * 360.0;
+	fullCircumference = 2 * 3.1415 * earRadius;
+	angle = (earLength / fullCircumference) * 360.0;
 
-	// ear_height = ear_radius * sin(angle);
-	ear_tip_width = 2 * ear_tip_radius * sin(ear_tip_angle / 2);
+	// earHeight = earRadius * sin(angle);
+	earTipWidth = 2 * earTipRadius * sin(earTipAngle / 2);
 
-	side_length = 2 * ear_radius * sin(angle / 2);
-	side_angle = asin((ear_width / 2 - ear_tip_width / 2) / side_length);
-	ear_height = side_length * cos(side_angle);
+	sideLength = 2 * earRadius * sin(angle / 2);
+	sideAngle = asin((earWidth / 2 - earTipWidth / 2) / sideLength);
+	earHeight = sideLength * cos(sideAngle);
 
-	// translate([ear_width/2,0,0])
+	// translate([earWidth/2,0,0])
 	mirror_copy([ 1, 0, 0 ]) union()
 	{
-		translate([ ear_width / 2, 0, 0 ])
-		rotate([ 0, 0, -angle / 2 + side_angle ])
-		angled_thing(r = ear_radius, angle = angle, off = ear_radius);
+		translate([ earWidth / 2, 0, 0 ])
+		rotate([ 0, 0, -angle / 2 + sideAngle ])
+		angled_thing(r = earRadius, angle = angle, off = earRadius);
 
-		translate([ ear_tip_width / 2, ear_height, 0 ])
+		translate([ earTipWidth / 2, earHeight, 0 ])
 		cylinder(d = width, h = height, $fn = 16, center = true);
-		translate([ ear_tip_width / 2, ear_height, 0 ])
-		rotate([ 0, 0, 90 - ear_tip_angle / 2 ])
-		angled_thing(r = ear_tip_radius, angle = ear_tip_angle / 2, off = ear_tip_radius);
+		translate([ earTipWidth / 2, earHeight, 0 ])
+		rotate([ 0, 0, 90 - earTipAngle / 2 ])
+		angled_thing(r = earTipRadius, angle = earTipAngle / 2, off = earTipRadius);
 	}
 }
 
@@ -111,11 +111,11 @@ module ear()
 module spike()
 {
 	rotate([ 90, 0, 0 ])
-	scale([ spike_width / spike_height, 1, 1 ])
+	scale([ spikeWidth / spikeHeight, 1, 1 ])
 	{
-		cylinder($fn = 12, d1 = spike_height, h = spike_depth, d2 = spike_height_end, center = false);
+		cylinder($fn = 12, d1 = spikeHeight, h = spikeDepth, d2 = spikeHeightEnd, center = false);
 		translate([ 0, 0, -width / 2 ])
-		cylinder(d = spike_height, h = width / 2, center = false);
+		cylinder(d = spikeHeight, h = width / 2, center = false);
 	}
 }
 
@@ -124,34 +124,34 @@ mirror_copy([ 1, 0, 0 ])
 	union()
 	{
 		// Upper half
-		angled_thing(r = upper_radius, angle = 90);
+		angled_thing(r = upperRadius, angle = 90);
 
 		// Ear
-		rotate([ 0, 0, ear_position_angle ])
-		translate([ 0, cos((ear_width / (2 * 3.1415 * upper_radius)) * 360 / 2) * upper_radius, 0 ])
+		rotate([ 0, 0, earPositionAngle ])
+		translate([ 0, cos((earWidth / (2 * 3.1415 * upperRadius)) * 360 / 2) * upperRadius, 0 ])
 		ear();
 
 		// Spikes
-		distance = upper_radius * 2 * 3.1415 * (spikes_angle / 360);
-		spike_distance = 10 / spike_density;
-		spike_angle_distance = spikes_angle / (distance / spike_distance);
-		spike_amount = floor(distance / spike_distance);
-		for (i = [0:1:spike_amount])
+		distance = upperRadius * 2 * 3.1415 * (spikesAngle / 360);
+		spikeDistance = 10 / spikeDensity;
+		spikeAngleDistance = spikesAngle / (distance / spikeDistance);
+		spikeAmount = floor(distance / spikeDistance);
+		for (i = [0:1:spikeAmount])
 		{
-			rotate([ 0, 0, (0.5 + i) * spike_angle_distance ])
-			translate([ 0, upper_radius - width / 2, 0 ])
+			rotate([ 0, 0, (0.5 + i) * spikeAngleDistance ])
+			translate([ 0, upperRadius - width / 2, 0 ])
 			spike();
 		}
 
 		// Lower half
-		angled_thing(r = bottom_radius, angle = -bottom_angle, off = bottom_radius - upper_radius);
+		angled_thing(r = bottomRadius, angle = -bottomAngle, off = bottomRadius - upperRadius);
 
 		// Bottom thing for some reason
-		shift_angled(r = bottom_radius, angle = -bottom_angle, off = bottom_radius - upper_radius) rotate([ 0, 0, 180 ])
+		shift_angled(r = bottomRadius, angle = -bottomAngle, off = bottomRadius - upperRadius) rotate([ 0, 0, 180 ])
 		{
 
-			angled_thing(r = end_radius, angle = bottom_angle, off = end_radius);
-			shift_angled(r = end_radius, angle = bottom_angle, off = end_radius)
+			angled_thing(r = endRadius, angle = bottomAngle, off = endRadius);
+			shift_angled(r = endRadius, angle = bottomAngle, off = endRadius)
 			    cylinder(d = width, h = height, $fn = 16, center = true);
 		}
 	}
