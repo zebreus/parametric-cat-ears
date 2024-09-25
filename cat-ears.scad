@@ -57,6 +57,14 @@ spikeDensity = 3; // [0.1:0.01:20]
 // Enable support for a rudelblinken PCB
 enableRudelblinken = false;
 
+/*[ LED recess ]*/
+
+// How deep the recess should be
+recessDepth = 0;
+// How wide the recess should be
+recessWidth = 4;
+
+
 /*[ Hidden ]*/
 rudelblinken_board_height = 1.6;
 rudelblinken_board_length = 33.6;
@@ -67,12 +75,24 @@ module mirror_copy(vector)
     mirror(vector) children();
 }
 
-module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0)
+// recessSide can be "outer" or "inner"
+module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0, recessSide = "outer")
 {
     translate([ -r, 0, 0 ])
     rotate_extrude(convexity = 10, $fa = 0.01, angle = angle)
     translate([ r, 0, 0 ])
-    square([ width, h ], center = true);
+    mirror([recessSide == "inner" ? 1 : 0,0,0])
+    polygon([
+        [width/2, h/2],
+        // [width/2, h/2 - recessWidth/2],
+        [width/2, recessWidth/2 + max(0, recessDepth)],
+        [width/2 - recessDepth, recessWidth/2],
+        [width/2 - recessDepth, -recessWidth/2],
+        [width/2, -recessWidth/2],
+        [width/2, -h/2],
+        [-width/2, -h/2],
+        [-width/2, h/2]]);
+    // square([ width, h ], center = true);
 
     // Spikes if requested
     spikesDirection = spikesAngle > 0 ? 1 : -1;
@@ -186,14 +206,14 @@ module ear(start_angle=0){
     rotate([0,0,earSideAngle])
     mirror([1,0,0])
     rotate([0,0,-start_angle]){
-    angled_thing(r = r1, angle = angle_connection);
+    angled_thing(r = r1, angle = angle_connection, recessSide = "inner");
     shift_angled(r = r1, angle = angle_connection)
     mirror([1,0,0]){
     angled_thing(r = r2, angle =  angle_side);
     shift_angled(r = r2, angle = angle_side )
     angled_thing(r = tip_radius, angle = angle_tip );
     }
-}
+    }
 }
 
 module lower_half(enableRudelblinken = enableRudelblinken) {
@@ -231,15 +251,32 @@ module second_lower_half_with_rudelblinken() {
         translate([-bottomRadius,0,0]) 
         cylinder($fs= 1,$fa=0.1,h = height*10, r = bottomRadius-(width/2), center = true);
 
+        board_height_with_recess = rudelblinken_board_height + recessDepth;
+
         // Subtract the actual rudelblinken PCB
         rotate([ 180, 0, 0 ])
         rotate([ 0, 90, 0 ])
-        translate([0,0, width / 2 - rudelblinken_board_height /2]){
-        rudelblinken(h = rudelblinken_board_height + 0.001);
+        translate([0,0, width / 2 - board_height_with_recess /2]){
+        rudelblinken(h = board_height_with_recess + 0.01);
         // Dirty hack to have no overhang, when the pcb is slimmer than height
         translate([height/2,0,0]) 
-        rudelblinken(h = rudelblinken_board_height + 0.001);
+        rudelblinken(h = board_height_with_recess + 0.01);
         }
+        
+        // USB c port cutout
+        translate([width / 2 - recessDepth,-rudelblinken_board_length-20+0.1,-1.5]){
+            translate([0,0,1.5]) 
+            cube([20,20,6]);
+            translate([1.5,0,0]) 
+            cube([20,20,9]);
+            translate([1.5,0,1.5]) 
+            rotate([-90,0,0])
+            cylinder(h=20,d=3,$fn=20);
+            translate([1.5,0,7.5]) 
+            rotate([-90,0,0])
+            cylinder(h=20,d=3,$fn=20);
+        }
+
     }
 }
 
@@ -255,7 +292,7 @@ module second_lower_half_without_rudelblinken(angle) {
 module round_end_thing() {
     rotate([ 0, 0, 180 ])
     {
-        angled_thing(r = endRadius, angle = bottomAngle);
+        angled_thing(r = endRadius, angle = bottomAngle, recessSide = "inner");
         shift_angled(r = endRadius, angle = bottomAngle)
         cylinder(d = width, h = height, $fn = 16, center = true);
     }
