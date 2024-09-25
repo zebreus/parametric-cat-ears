@@ -85,7 +85,7 @@ module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0, rece
     polygon([
         [width/2, h/2],
         // [width/2, h/2 - recessWidth/2],
-        [width/2, recessWidth/2 + max(0, recessDepth)],
+        [width/2, min(h/2,recessWidth/2 + abs(recessDepth))],
         [width/2 - recessDepth, recessWidth/2],
         [width/2 - recessDepth, -recessWidth/2],
         [width/2, -recessWidth/2],
