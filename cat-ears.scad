@@ -45,114 +45,194 @@ spikeWidth = 1; // [0:0.1:20]
 // Spikes per cm
 spikeDensity = 4; // [0.1:0.01:20]
 
+/*[ Rudelblinken ]*/
+
+// Enable support for a rudelblinken PCB
+enableRudelblinken = false;
+
+/*[ Hidden ]*/
+rudelblinken_board_height = 1.6;
+rudelblinken_board_length = 33.6;
+
 module mirror_copy(vector)
 {
-	children();
-	mirror(vector) children();
+    children();
+    mirror(vector) children();
 }
 
 module angled_thing(r, angle, off = 0, h = height, smooth = false)
 {
-	if (smooth)
-	{
-		minkowski(10)
-		{
-			cylinder($fn = 9, h = 0.001, d = width - 0.001);
-			translate([ -off, 0, 0 ])
-			rotate_extrude(convexity = 10, $fa = 0.01, $fs = 1, angle = angle) translate([ r, 0, 0 ])
-			square([ 0.001, h ], center = true);
-		}
-	}
-	else
-	{
-		translate([ -off, 0, 0 ])
-		rotate_extrude(convexity = 10, $fa = 0.01, $fs = 1, angle = angle) translate([ r, 0, 0 ])
-		square([ width, h ], center = true);
-	}
+    if (smooth)
+    {
+        minkowski(10)
+        {
+            cylinder($fn = 9, h = 0.001, d = width - 0.001);
+            translate([ -off, 0, 0 ]) rotate_extrude(convexity = 10, $fa = 0.01, $fs = 1, angle = angle)
+                translate([ r, 0, 0 ]) square([ 0.001, h ], center = true);
+        }
+    }
+    else
+    {
+        translate([ -off, 0, 0 ]) rotate_extrude(convexity = 10, $fa = 0.01, $fs = 1, angle = angle)
+            translate([ r, 0, 0 ]) square([ width, h ], center = true);
+    }
 }
 
 module shift_angled(r = 0, angle = 0, off = 0)
 {
-	translate([ -off, 0, 0 ])
-	rotate([ 0, 0, angle ])
-	translate([ r, 0, 0 ])
-	children();
+    translate([ -off, 0, 0 ]) rotate([ 0, 0, angle ]) translate([ r, 0, 0 ]) children();
 }
 
 // A single ear. Centered
 module ear()
 {
-	fullCircumference = 2 * 3.1415 * earRadius;
-	angle = (earLength / fullCircumference) * 360.0;
+    fullCircumference = 2 * 3.1415 * earRadius;
+    angle = (earLength / fullCircumference) * 360.0;
 
-	// earHeight = earRadius * sin(angle);
-	earTipWidth = 2 * earTipRadius * sin(earTipAngle / 2);
+    // earHeight = earRadius * sin(angle);
+    earTipWidth = 2 * earTipRadius * sin(earTipAngle / 2);
 
-	sideLength = 2 * earRadius * sin(angle / 2);
-	sideAngle = asin((earWidth / 2 - earTipWidth / 2) / sideLength);
-	earHeight = sideLength * cos(sideAngle);
+    sideLength = 2 * earRadius * sin(angle / 2);
+    sideAngle = asin((earWidth / 2 - earTipWidth / 2) / sideLength);
+    earHeight = sideLength * cos(sideAngle);
 
-	// translate([earWidth/2,0,0])
-	mirror_copy([ 1, 0, 0 ]) union()
-	{
-		translate([ earWidth / 2, 0, 0 ])
-		rotate([ 0, 0, -angle / 2 + sideAngle ])
-		angled_thing(r = earRadius, angle = angle, off = earRadius);
+    // translate([earWidth/2,0,0])
+    mirror_copy([ 1, 0, 0 ]) union()
+    {
+        translate([ earWidth / 2, 0, 0 ]) rotate([ 0, 0, -angle / 2 + sideAngle ])
+            angled_thing(r = earRadius, angle = angle, off = earRadius);
 
-		translate([ earTipWidth / 2, earHeight, 0 ])
-		cylinder(d = width, h = height, $fn = 16, center = true);
-		translate([ earTipWidth / 2, earHeight, 0 ])
-		rotate([ 0, 0, 90 - earTipAngle / 2 ])
-		angled_thing(r = earTipRadius, angle = earTipAngle / 2, off = earTipRadius);
-	}
+        translate([ earTipWidth / 2, earHeight, 0 ]) cylinder(d = width, h = height, $fn = 16, center = true);
+        translate([ earTipWidth / 2, earHeight, 0 ]) rotate([ 0, 0, 90 - earTipAngle / 2 ])
+            angled_thing(r = earTipRadius, angle = earTipAngle / 2, off = earTipRadius);
+    }
+}
+
+
+
+module lower_half(enableRudelblinken = enableRudelblinken) {
+     // Main beam until the rudelblinke board
+    angled_thing(r = bottomRadius, angle = -bottomAngle + rudelblinken_board_angle_length, off = bottomRadius);
+
+    bottom_circumference = bottomRadius * 2 * 3.1415;
+    rudelblinken_board_angle_length = 360 * (rudelblinken_board_length / bottom_circumference);
+    shift_angled(r = bottomRadius, angle = -bottomAngle + rudelblinken_board_angle_length, off = bottomRadius )
+    if (enableRudelblinken){
+    second_lower_half_with_rudelblinken();
+    }else {
+
+    second_lower_half_without_rudelblinken(angle = rudelblinken_board_angle_length);
+    }
+}
+
+// The bottom part of the headband with a slot for a rudelblinken board
+module second_lower_half_with_rudelblinken() {
+     // Main beam until the rudelblinke board
+    bottom_circumference = bottomRadius * 2 * 3.1415;
+    rudelblinken_board_angle_length = 360 * (rudelblinken_board_length / bottom_circumference);
+    difference() {
+        hull() 
+        {
+            shift_angled(r = bottomRadius, angle = -rudelblinken_board_angle_length, off = bottomRadius)
+            round_end_thing();
+            angled_thing(r = bottomRadius, angle = -rudelblinken_board_angle_length, off = bottomRadius);
+            rotate([ 180, 0, 0 ])
+            rotate([ 0, 90, 0 ])
+            rudelblinken(h = width);
+        }
+                
+        // Subtract the inner part of the hull that gets filled by the hull operation above
+        translate([-bottomRadius,0,0]) 
+        cylinder($fs= 1,$fa=0.1,h = height*10, r = bottomRadius-(width/2), center = true);
+
+        // Subtract the actual rudelblinken PCB
+        rotate([ 180, 0, 0 ])
+        rotate([ 0, 90, 0 ])
+        translate([0,0, width / 2 - rudelblinken_board_height /2]){
+        rudelblinken(h = rudelblinken_board_height + 0.001);
+        // Dirty hack to have no overhang, when the pcb is slimmer than height
+        translate([height/2,0,0]) 
+        rudelblinken(h = rudelblinken_board_height + 0.001);
+        }
+    }
+}
+
+// The bottom part of the headband with a slot for a rudelblinken board
+module second_lower_half_without_rudelblinken(angle) {
+    shift_angled(r = bottomRadius, angle = -angle, off = bottomRadius)
+    round_end_thing();
+    angled_thing(r = bottomRadius, angle = -angle, off = bottomRadius);
+}
+
+
+// The thing at the very end of the headband
+module round_end_thing() {
+    rotate([ 0, 0, 180 ])
+    {
+        angled_thing(r = endRadius, angle = bottomAngle, off = endRadius);
+        shift_angled(r = endRadius, angle = bottomAngle, off = endRadius)
+        cylinder(d = width, h = height, $fn = 16, center = true);
+    }
 }
 
 // The spike make sure you dont lose your ears
 module spike()
 {
-	rotate([ 90, 0, 0 ])
-	scale([ spikeWidth / spikeHeight, 1, 1 ])
-	{
-		cylinder($fn = 12, d1 = spikeHeight, h = spikeDepth, d2 = spikeHeightEnd, center = false);
-		translate([ 0, 0, -width / 2 ])
-		cylinder(d = spikeHeight, h = width / 2, center = false);
-	}
+    rotate([ 90, 0, 0 ]) scale([ spikeWidth / spikeHeight, 1, 1 ])
+    {
+        cylinder($fn = 12, d1 = spikeHeight, h = spikeDepth, d2 = spikeHeightEnd, center = false);
+        translate([ 0, 0, -width / 2 ]) cylinder(d = spikeHeight, h = width / 2, center = false);
+    }
 }
 
-mirror_copy([ 1, 0, 0 ])
+    for(side = ["left", "right"])
+    mirror([side == "left" ? 1 : 0,0,0])
+    {
+        union()
+        { // Upper half
+            angled_thing(r = upperRadius, angle = 90);
+
+            // Ear
+            rotate([ 0, 0, earPositionAngle ])
+            translate([ 0, cos((earWidth / (2 * 3.1415 * upperRadius)) * 360 / 2) * upperRadius, 0 ])
+            ear();
+
+            // Spikes
+            distance = upperRadius * 2 * 3.1415 * (spikesAngle / 360);
+            spikeDistance = 10 / spikeDensity;
+            spikeAngleDistance = spikesAngle / (distance / spikeDistance);
+            spikeAmount = floor(distance / spikeDistance);
+            for (i = [0:1:spikeAmount])
+            {
+                rotate([ 0, 0, (0.5 + i) * spikeAngleDistance ]) translate([ 0, upperRadius - width / 2, 0 ]) spike();
+            }
+
+
+
+            // Lower half
+            shift_angled(r = bottomRadius, angle = 0, off = bottomRadius - upperRadius )
+            lower_half(enableRudelblinken = (enableRudelblinken && (side=="left")));
+        }
+    }
+
+
+
+module rudelblinken_shape(center = true)
 {
-	union()
-	{
-		// Upper half
-		angled_thing(r = upperRadius, angle = 90);
 
-		// Ear
-		rotate([ 0, 0, earPositionAngle ])
-		translate([ 0, cos((earWidth / (2 * 3.1415 * upperRadius)) * 360 / 2) * upperRadius, 0 ])
-		ear();
-
-		// Spikes
-		distance = upperRadius * 2 * 3.1415 * (spikesAngle / 360);
-		spikeDistance = 10 / spikeDensity;
-		spikeAngleDistance = spikesAngle / (distance / spikeDistance);
-		spikeAmount = floor(distance / spikeDistance);
-		for (i = [0:1:spikeAmount])
-		{
-			rotate([ 0, 0, (0.5 + i) * spikeAngleDistance ])
-			translate([ 0, upperRadius - width / 2, 0 ])
-			spike();
-		}
-
-		// Lower half
-		angled_thing(r = bottomRadius, angle = -bottomAngle, off = bottomRadius - upperRadius);
-
-		// Bottom thing for some reason
-		shift_angled(r = bottomRadius, angle = -bottomAngle, off = bottomRadius - upperRadius) rotate([ 0, 0, 180 ])
-		{
-
-			angled_thing(r = endRadius, angle = bottomAngle, off = endRadius);
-			shift_angled(r = endRadius, angle = bottomAngle, off = endRadius)
-			    cylinder(d = width, h = height, $fn = 16, center = true);
-		}
-	}
+    translate([ -2.5,0,0 ]) polygon([
+        [ 0, 0 ],
+        [ 5, 0 ],
+        // [ 5, 5.2 ],
+        // [ 6.5, 6.2 ],
+        [ 10.1, 14.4 ],
+        [ 10.1, 33.6 ],
+        [ 0, 33.6 ],
+    ]);
 }
+module rudelblinken(h = rudelblinken_board_height, center = true)
+{
+    translate([ 0, 0, center ? -h / 2 : 0 ]) linear_extrude(height = h)
+        rudelblinken_shape(center);
+}
+
