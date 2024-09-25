@@ -2,6 +2,8 @@
 
 // Radius of the circle that makes up the upper half of the headband
 upperRadius = 60; // [20:120]
+// This angle determines the size of the upper half
+upperAngle = 90; // [70, 120]
 // This angle determines the size of the bottom half
 bottomAngle = 50; // [0:120]
 // Radius of the partial circles of the bottom half
@@ -33,7 +35,8 @@ earTipAngle = 90; // [0:180]
 /*[ Spikes ]*/
 
 // How much of the upper ring has spikes (in degrees)
-spikesAngle = 75; // [0:90]
+// Should be smaller than upperAngle otherwise spikes will be detached
+spikesAngle = 75; // [0:120]
 // How long the spikes are. Increase for more grip
 spikeDepth = 1.5; // [0:0.1:10]
 // How high the spikes are.
@@ -190,7 +193,8 @@ module spike()
     {
         union()
         { // Upper half
-            angled_thing(r = upperRadius, angle = 90);
+            rotate([0,0,90]) 
+            angled_thing(r = upperRadius, angle = -upperAngle);
 
             // Ear
             rotate([ 0, 0, earPositionAngle ])
@@ -207,10 +211,10 @@ module spike()
                 rotate([ 0, 0, (0.5 + i) * spikeAngleDistance ]) translate([ 0, upperRadius - width / 2, 0 ]) spike();
             }
 
-
-
             // Lower half
-            shift_angled(r = bottomRadius, angle = 0, off = bottomRadius - upperRadius )
+            // shift_angled(r = bottomRadius, angle = 0, off = bottomRadius - upperRadius )
+            rotate([0,0,90-upperAngle])
+            translate([upperRadius,0,0]) 
             lower_half(enableRudelblinken = (enableRudelblinken && (side=="left")));
         }
     }
