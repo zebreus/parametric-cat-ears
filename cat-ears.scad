@@ -3,11 +3,11 @@
 // Radius of the circle that makes up the upper half of the headband
 upperRadius = 60; // [20:120]
 // This angle determines the size of the upper half
-upperAngle = 80; // [70, 120]
+upperAngle = 80; // [40:140]
 // Radius of the circle that makes up the middle part of the headband
 middleRadius = 80; // [20:120]
 // This angle determines the size of the middle part of the headband
-middleAngle = 30; // [0, 90]
+middleAngle = 30; // [0:90]
 // This angle determines the size of the bottom half
 bottomAngle = 30; // [0:120]
 // Radius of the partial circles of the bottom half
@@ -60,9 +60,9 @@ enableRudelblinken = false;
 /*[ LED recess ]*/
 
 // How deep the recess should be
-recessDepth = 0;
+recessDepth = 0; // [0:0.05:5]
 // How wide the recess should be
-recessWidth = 4;
+recessWidth = 4; // [0:0.1:20]
 
 
 /*[ Hidden ]*/
