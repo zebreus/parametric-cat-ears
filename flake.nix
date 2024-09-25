@@ -34,7 +34,7 @@
         devShells.default = pkgs.mkShell {
           buildInputs = [
             pkgs.openscad
-            pkgs.clang-tools # For formatting the scad file
+            pkgs.llvmPackages_12.clang-tools # For formatting the scad file
           ];
         };
 
