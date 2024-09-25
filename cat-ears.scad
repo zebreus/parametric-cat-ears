@@ -68,7 +68,10 @@ recessWidth = 4; // [0:0.1:20]
 /*[ About ]*/
 
 // How good you are at hearing
-hearingAbility = 2;
+hearingAbility = 2; // [0:1:10]
+
+// Enable extra protection
+protection = false;
 
 /*[ Hidden ]*/
 rudelblinken_board_height = 1.6;
@@ -114,6 +117,24 @@ module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0, rece
         translate([ r - width / 2, 0, 0 ])
         rotate([0,0,-90])
         spike();
+    }
+    if (protection){
+        spikesDirection = angle > 0 ? 1 : -1;
+        spikesAngle = abs(angle);
+        distance = r * 2 * PI * (spikesAngle / 360);
+        spikeDistance = 10 / spikeDensity;
+        spikeAngleDistance = spikesAngle / (distance / spikeDistance);
+        spikeOffset = ((((0.5 * spikeDistance) -abs(spikeOffset) )% spikeDistance)+spikeDistance)%spikeDistance;
+        spikeAngleOffset =  spikesAngle / (distance / spikeOffset);
+        for (spikeAngle = [spikeAngleOffset:spikeAngleDistance:abs(angle)])
+        {
+            translate([ -r, 0, 0 ])
+            rotate([ 0, 0, spikesDirection * spikeAngle])
+            translate([ r - width / 2, 0, 0 ])
+            translate([recessSide == "inner" ? 0 : width,0,0]) 
+            rotate([0,0,recessSide == "inner" ? -90 : 90])
+            spike();
+        }
     }
 }
 
@@ -216,7 +237,7 @@ module ear(start_angle=0){
     mirror([1,0,0]){
     angled_thing(r = r2, angle =  angle_side);
     shift_angled(r = r2, angle = angle_side )
-    angled_thing(r = tip_radius, angle = angle_tip );
+    angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side)  );
     }
     }
 }
