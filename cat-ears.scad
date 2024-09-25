@@ -23,18 +23,18 @@ width = 2.7; // [0:0.1:30]
 /*[ Ears ]*/
 
 // Where the ears are located on the headband
-earPositionAngle = 40; // [0:90]
+earPositionAngle = 38; // [0:90]
 
 // Radius of the curvature of the ears sides
 earRadius = 100; // [10:500]
-// Roughly the length of the ears
-earLength = 50; // [10:500]
+// Roughly how the ears are
+earLength = 45; // [10:500]
 // The width of the ears
-earWidth = 44; // [10:120]
-// Radius of the ears tips. 0 for spiky ears
-earTipRadius = 3; // [0:100]
-// How big the angle of the ear tips is
-earTipAngle = 90; // [0:180]
+earWidth = 50; // [10:120]
+// How wide the tip of the ear is
+earTipWidth = 5; // [2:40]
+// How big the angle of the ears base is
+earConnectorRadius = 7; // [2:50]
 
 /*[ Spikes ]*/
 
@@ -77,7 +77,7 @@ module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0)
     // Spikes if requested
     spikesDirection = spikesAngle > 0 ? 1 : -1;
     spikesAngle = abs(spikesAngle);
-    distance = r * 2 * 3.1415 * (spikesAngle / 360);
+    distance = r * 2 * PI * (spikesAngle / 360);
     spikeDistance = 10 / spikeDensity;
     spikeAngleDistance = spikesAngle / (distance / spikeDistance);
     spikeOffset = ((((0.5 * spikeDistance) -abs(spikeOffset) )% spikeDistance)+spikeDistance)%spikeDistance;
@@ -100,38 +100,107 @@ module shift_angled(r = 0, angle = 0)
     children();
 }
 
+function dist(p1, p2) = sqrt(pow(p2[0] - p1[0], 2) + pow(p2[1] - p1[1], 2));
+
+
+// module funny_beam(start_angle=45,length=50, r1=10, r2=20){
+
+//     center_a = [r1*cos(start_angle),r1*sin(start_angle)];
+//     center_b = [0 , length];
+
+//     rr1 = r1+r2;
+//     rr2 = r2;
+
+//     d = dist(center_a, center_b);
+
+//     // Find the point P2 which is the point where the line through the intersection points crosses the line between the circle centers
+//     l = (rr1^2 - rr2^2 + d^2) / (2 * d);
+
+//     // Distance from P2 to the intersection points
+//     h = sqrt(rr1 ^ 2 - l ^ 2);
+
+//     center_c = [
+//         (l/d)*(center_b[0]-center_a[0]) - (h/d)*(center_b[1]-center_a[1]) + center_a[0],
+//         (l/d)*(center_b[1]-center_a[1]) + (h/d)*(center_b[0]-center_a[0]) + center_a[1],
+//     ];
+
+//     angle_ca = atan2(center_c[1]-center_a[1], center_c[0]-center_a[0]);
+//     angle_cb = atan2(center_c[1]-center_b[1], center_c[0]-center_b[0]);
+//     angle_connection = start_angle + 180 - angle_ca;
+
+//     mirror([1,0,0])
+//     rotate([0,0,-start_angle]){
+//     %angled_thing(r = r1, angle = angle_connection);
+//     shift_angled(r = r1, angle = angle_connection)
+//     mirror([1,0,0])
+//     %angled_thing(r = r2, angle =  (360+angle_cb -angle_ca) %360);
+//     }
+
+
+// }
+// funny_beam();
+
 // A single ear. Centered
-module ear()
-{
-    fullCircumference = 2 * 3.1415 * earRadius;
-    angle = (earLength / fullCircumference) * 360.0;
+module ear(start_angle=0){
+    r1=earConnectorRadius;
+    r2=earRadius;
 
-    // earHeight = earRadius * sin(angle);
-    earTipWidth = 2 * earTipRadius * sin(earTipAngle / 2);
+    earSideWidth = (earWidth - earTipWidth)/2;
+    earSideHeight = earLength;
+    earSideLength = sqrt(earSideWidth^2 + earSideHeight^2);
 
-    sideLength = 2 * earRadius * sin(angle / 2);
-    sideAngle = asin((earWidth / 2 - earTipWidth / 2) / sideLength);
-    earHeight = sideLength * cos(sideAngle);
+    earSideAngle = atan(earSideWidth/earSideHeight);
 
-    rotate([0,0,-90])
-    mirror_copy([ 1, 0, 0 ]) union()
-    {
-        translate([ earWidth / 2, 0, 0 ]) rotate([ 0, 0, -angle / 2 + sideAngle ])
-            angled_thing(r = earRadius, angle = angle);
+    start_angle = 90 - earSideAngle - start_angle;
 
-        translate([ earTipWidth / 2, earHeight, 0 ]) cylinder(d = width, h = height, $fn = 16, center = true);
-        translate([ earTipWidth / 2, earHeight, 0 ]) rotate([ 0, 0, 90 - earTipAngle / 2 ])
-            angled_thing($fs = 1, r = earTipRadius, angle = earTipAngle / 2);
+
+    center_a = [r1*cos(start_angle),r1*sin(start_angle)];
+    center_b = [0 , earSideLength];
+
+    rr1 = r1+r2;
+    rr2 = r2;
+
+    d = dist(center_a, center_b);
+
+    // Find the point P2 which is the point where the line through the intersection points crosses the line between the circle centers
+    l = (rr1^2 - rr2^2 + d^2) / (2 * d);
+
+    // Distance from P2 to the intersection points
+    h = sqrt(rr1 ^ 2 - l ^ 2);
+
+    center_c = [
+        (l/d)*(center_b[0]-center_a[0]) - (h/d)*(center_b[1]-center_a[1]) + center_a[0],
+        (l/d)*(center_b[1]-center_a[1]) + (h/d)*(center_b[0]-center_a[0]) + center_a[1],
+    ];
+
+    angle_ca = atan2(center_c[1]-center_a[1], center_c[0]-center_a[0]);
+    angle_cb = atan2(center_c[1]-center_b[1], center_c[0]-center_b[0]);
+    angle_connection = start_angle + 180 - angle_ca;
+    angle_side = (360+angle_cb -angle_ca) %360;
+    angle_tip = 90-(angle_side + start_angle - angle_connection)-earSideAngle;
+
+    tip_radius = earTipWidth /2 / sin(angle_tip) ;
+
+    mirror_copy([1,0,0])
+    translate([earWidth/2,0,0]) 
+    rotate([0,0,earSideAngle])
+    mirror([1,0,0])
+    rotate([0,0,-start_angle]){
+    angled_thing(r = r1, angle = angle_connection);
+    shift_angled(r = r1, angle = angle_connection)
+    mirror([1,0,0]){
+    angled_thing(r = r2, angle =  angle_side);
+    shift_angled(r = r2, angle = angle_side )
+    angled_thing(r = tip_radius, angle = angle_tip );
     }
 }
-
-
+}
 
 module lower_half(enableRudelblinken = enableRudelblinken) {
      // Main beam until the rudelblinke board
     angled_thing(r = bottomRadius, angle = -bottomAngle + rudelblinken_board_angle_length);
 
-    bottom_circumference = bottomRadius * 2 * 3.1415;
+    bottom_circumference = bottomRadius * 2 * PI;
     rudelblinken_board_angle_length = 360 * (rudelblinken_board_length / bottom_circumference);
     shift_angled(r = bottomRadius, angle = -bottomAngle + rudelblinken_board_angle_length)
     if (enableRudelblinken){
@@ -145,7 +214,7 @@ module lower_half(enableRudelblinken = enableRudelblinken) {
 // The bottom part of the headband with a slot for a rudelblinken board
 module second_lower_half_with_rudelblinken() {
      // Main beam until the rudelblinke board
-    bottom_circumference = bottomRadius * 2 * 3.1415;
+    bottom_circumference = bottomRadius * 2 * PI;
     rudelblinken_board_angle_length = 360 * (rudelblinken_board_length / bottom_circumference);
     difference() {
         hull() 
@@ -202,23 +271,6 @@ module spike()
     }
 }
 
-for(side = ["right", "left"])
-mirror([side == "left" ? 1 : 0,0,0])
-translate([0,upperRadius,0])
-rotate([0,0,90])
-{
-        angled_thing(r = upperRadius, angle = -upperAngle, spikesAngle = -min(spikesAngle, upperAngle));
-        shift_angled(r = upperRadius, angle = -upperAngle){
-            angled_thing(r = middleRadius, angle = -middleAngle, spikesAngle = -min(max(spikesAngle-upperAngle, 0), middleAngle, spikeOffset = (upperAngle/upperRadius)*2*3.1415*upperRadius));
-            shift_angled(r = middleRadius, angle = -middleAngle)
-            lower_half(enableRudelblinken = (enableRudelblinken && (side=="left")));
-        }
-
-        shift_angled(r = upperRadius, angle = -earPositionAngle)
-        translate([upperRadius - sqrt((earWidth/2)^2 + upperRadius^2),0,0]) 
-        ear();
-}
-
 
 
 module rudelblinken_shape(center = true)
@@ -239,3 +291,27 @@ module rudelblinken(h = rudelblinken_board_height, center = true)
     translate([ 0, 0, center ? -h / 2 : 0 ]) linear_extrude(height = h)
         rudelblinken_shape(center);
 }
+
+
+for(side = ["right", "left"])
+mirror([side == "left" ? 1 : 0,0,0])
+translate([0,upperRadius,0])
+rotate([0,0,90])
+{
+    angled_thing(r = upperRadius, angle = -upperAngle, spikesAngle = -min(spikesAngle, upperAngle));
+    shift_angled(r = upperRadius, angle = -upperAngle){
+        angled_thing(r = middleRadius, angle = -middleAngle, spikesAngle = -min(max(spikesAngle-upperAngle, 0), middleAngle, spikeOffset = (upperAngle/upperRadius)*2*PI*upperRadius));
+        shift_angled(r = middleRadius, angle = -middleAngle)
+        lower_half(enableRudelblinken = (enableRudelblinken && (side=="left")));
+    }
+
+    relevant_angle = ((earWidth / 2)/(2*PI*upperRadius)) * 360;
+    relevant_length = upperRadius - sqrt( upperRadius^2 - (earWidth/2)^2);
+    // echo(relevant_angle);
+    // echo(relevant_length);
+    shift_angled(r = upperRadius, angle = -earPositionAngle)
+    translate([-relevant_length,0,0]) 
+    rotate([0,0,-90])
+    ear(start_angle = relevant_angle);
+}
+
