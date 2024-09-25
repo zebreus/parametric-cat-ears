@@ -64,6 +64,11 @@ recessDepth = 0; // [0:0.05:5]
 // How wide the recess should be
 recessWidth = 4; // [0:0.1:20]
 
+// Secret section with a boring name
+/*[ About ]*/
+
+// How good you are at hearing
+hearingAbility = 2;
 
 /*[ Hidden ]*/
 rudelblinken_board_height = 1.6;
@@ -346,9 +351,14 @@ rotate([0,0,90])
     relevant_length = upperRadius - sqrt( upperRadius^2 - (earWidth/2)^2);
     // echo(relevant_angle);
     // echo(relevant_length);
-    shift_angled(r = upperRadius, angle = -earPositionAngle)
-    translate([-relevant_length,0,0]) 
-    rotate([0,0,-90])
-    ear(start_angle = relevant_angle);
+    if (hearingAbility >= 1){
+        earStartPosition = hearingAbility <= 1 ? 0 : earPositionAngle;
+        earDistance = earPositionAngle*2 / (hearingAbility - 1);
+        for(earPosition = [-earStartPosition:earDistance:earPositionAngle])
+        shift_angled(r = upperRadius, angle = -earPosition)
+        translate([-relevant_length,0,0]) 
+        rotate([0,0,-90])
+        ear(start_angle = relevant_angle);
+    }
 }
 
