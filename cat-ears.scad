@@ -60,7 +60,7 @@ enableRudelblinken = false;
 /*[ LED recess ]*/
 
 // How deep the recess should be
-recessDepth = 0; // [0:0.05:5]
+recessDepth = 0.0; // [0.0:0.01:5.0]
 // How wide the recess should be
 recessWidth = 4; // [0:0.1:20]
 
