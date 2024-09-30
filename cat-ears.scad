@@ -18,7 +18,7 @@ endRadius = 10; // [0:50]
 // Height of the headband
 height = 6; // [0:0.1:30]
 // Width of the headband
-width = 2.7; // [0:0.1:30]
+width = 2.5; // [0:0.1:30]
 
 /*[ Ears ]*/
 
@@ -74,8 +74,8 @@ hearingAbility = 2; // [0:1:10]
 protection = false;
 
 /*[ Hidden ]*/
-rudelblinken_board_height = 1.6;
-rudelblinken_board_length = 33.6;
+rudelblinken_board_height = 1.7;
+rudelblinken_board_length = 34.2;
 
 module mirror_copy(vector)
 {
@@ -338,15 +338,14 @@ module spike()
 
 module rudelblinken_shape(center = true)
 {
-
     translate([ -2.5,0,0 ]) polygon([
         [ 0, 0 ],
         [ 5, 0 ],
         // [ 5, 5.2 ],
         // [ 6.5, 6.2 ],
         [ 10.1, 14.4 ],
-        [ 10.1, 33.6 ],
-        [ 0, 33.6 ],
+        [ 10.1, 34.2 ],
+        [ 0, 34.2 ],
     ]);
 }
 module rudelblinken(h = rudelblinken_board_height, center = true)
