@@ -244,10 +244,10 @@ module ear(start_angle=0){
 
 module lower_half(enableRudelblinken = enableRudelblinken) {
      // Main beam until the rudelblinke board
-    angled_thing(r = bottomRadius, angle = -bottomAngle + rudelblinken_board_angle_length);
+    angled_thing(r = bottomRadius, angle = min(0,-bottomAngle + rudelblinken_board_angle_length));
 
     bottom_circumference = bottomRadius * 2 * PI;
-    rudelblinken_board_angle_length = 360 * (rudelblinken_board_length / bottom_circumference);
+    rudelblinken_board_angle_length = enableRudelblinken ? (360 * (rudelblinken_board_length / bottom_circumference)) : 0;
     shift_angled(r = bottomRadius, angle = -bottomAngle + rudelblinken_board_angle_length)
     if (enableRudelblinken){
     second_lower_half_with_rudelblinken();
