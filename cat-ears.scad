@@ -64,14 +64,28 @@ recessDepth = 0.0; // [0.0:0.01:5.0]
 // How wide the recess should be
 recessWidth = 4; // [0:0.1:20]
 
-// Secret section with a boring name
-/*[ About ]*/
+// Dont open this section
+/*[ Other hacky options ]*/
 
 // How good you are at hearing
 hearingAbility = 2; // [0:1:10]
 
 // Enable extra protection
 protection = false;
+
+// Secret section with a boring name
+/*[ About ]*/
+
+// If the headband should be horny
+horny = false;
+
+// This is required because I am too lazy to calculate the length
+hornyRadius = 75; // [0:0.5:200]
+
+// Another setting
+hornyDiff = 0; // [-100:0.5:100]
+
+
 
 /*[ Hidden ]*/
 rudelblinken_board_height = 1.7;
@@ -242,6 +256,79 @@ module ear(start_angle=0){
     }
 }
 
+// A single ear. Centered
+module horn(start_angle=0){
+    r1=earConnectorRadius;
+    r2=earRadius;
+
+    earSideWidth = (earWidth - earTipWidth)/2;
+    earSideHeight = earLength;
+    earSideLength = sqrt(earSideWidth^2 + earSideHeight^2);
+
+    earSideAngle = atan(earSideWidth/earSideHeight);
+
+    start_angle = 90 - earSideAngle - start_angle;
+
+
+    center_a = [r1*cos(start_angle),r1*sin(start_angle)];
+    center_b = [0 , earSideLength];
+
+    rr1 = r1+r2;
+    rr2 = r2;
+
+    d = dist(center_a, center_b);
+
+    // Find the point P2 which is the point where the line through the intersection points crosses the line between the circle centers
+    l = (rr1^2 - rr2^2 + d^2) / (2 * d);
+
+    // Distance from P2 to the intersection points
+    h = sqrt(rr1 ^ 2 - l ^ 2);
+
+    center_c = [
+        (l/d)*(center_b[0]-center_a[0]) - (h/d)*(center_b[1]-center_a[1]) + center_a[0],
+        (l/d)*(center_b[1]-center_a[1]) + (h/d)*(center_b[0]-center_a[0]) + center_a[1],
+    ];
+
+    angle_ca = atan2(center_c[1]-center_a[1], center_c[0]-center_a[0]);
+    angle_cb = atan2(center_c[1]-center_b[1], center_c[0]-center_b[0]);
+    angle_connection = start_angle + 180 - angle_ca;
+    angle_side = (360+angle_cb -angle_ca) %360;
+    angle_tip = 90-(angle_side + start_angle - angle_connection)-earSideAngle;
+
+    tip_radius = earTipWidth /2 / sin(angle_tip) ;
+
+    intersection() {
+    translate([0,0,-50])
+    cylinder(h= 100, r=hornyRadius);
+
+    union() {
+    translate([earWidth/2,0,0]) 
+    rotate([0,0,earSideAngle])
+    mirror([1,0,0])
+    rotate([0,0,-start_angle]){
+    angled_thing(r = r1, angle = angle_connection, recessSide = "inner");
+    shift_angled(r = r1, angle = angle_connection)
+    mirror([1,0,0]){
+    mirror([1,0,0])
+    angled_thing(r = r2-hornyDiff, angle =  180);
+    }
+    }
+    
+    mirror([1,0,0])
+    translate([earWidth/2,0,0]) 
+    rotate([0,0,earSideAngle])
+    mirror([1,0,0])
+    rotate([0,0,-start_angle]){
+    angled_thing(r = r1, angle = angle_connection, recessSide = "inner");
+    shift_angled(r = r1, angle = angle_connection)
+    mirror([1,0,0]){
+    angled_thing(r = r2, angle =  180);
+    }
+    }
+    }
+    }
+}
+
 module lower_half(enableRudelblinken = enableRudelblinken) {
      // Main beam until the rudelblinke board
     angled_thing(r = bottomRadius, angle = min(0,-bottomAngle + rudelblinken_board_angle_length));
@@ -374,11 +461,15 @@ rotate([0,0,90])
     if (hearingAbility >= 1){
         earStartPosition = hearingAbility <= 1 ? 0 : earPositionAngle;
         earDistance = earPositionAngle*2 / (hearingAbility - 1);
-        for(earPosition = [-earStartPosition:earDistance:earPositionAngle])
+        for(earPosition = [-earStartPosition:earDistance:0])
         shift_angled(r = upperRadius, angle = -earPosition)
         translate([-relevant_length,0,0]) 
         rotate([0,0,-90])
-        ear(start_angle = relevant_angle);
+        if(horny){
+            horn(start_angle = relevant_angle);
+        } else {
+            ear(start_angle = relevant_angle);
+        }
     }
 }
 
