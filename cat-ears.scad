@@ -71,6 +71,13 @@ recessDepth = 1.0; // [0.0:0.01:5.0]
 // How wide the recess should be
 recessWidth = 2.8; // [0:0.1:20]
 
+// Puch a hole into the base of the ears for for cables to the inside
+cableHole = 3.0;
+// If the cable hole should be open
+cableHoleOpen = true;
+// Make the cable hole extra big
+cableHoleAspect = 1;
+
 // Dont open this section
 /*[ Other hacky options ]*/
 
@@ -263,14 +270,33 @@ module ear(start_angle=0){
     mirror([1,0,0])
     rotate([0,0,-start_angle]){
       // Attachment of ear to headband -- base-only section for leading wires/LED strip through
-      angled_thing(r=r1, angle = angle_connection, insideRecess = outsideEarRecess, outsideRecess = insideEarRecess);
-      shift_angled(r = r1, angle = angle_connection)
-      mirror([1,0,0]){
-        // side
-        angled_thing(r = r2, angle = angle_side, insideRecess = insideEarRecess, outsideRecess = outsideEarRecess);
-        // tip
-        shift_angled(r = r2, angle = angle_side )
-        angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side), insideRecess = insideEarRecess, outsideRecess = outsideEarRecess);
+      difference(){
+      union(){
+        angled_thing(r=r1, angle = angle_connection, insideRecess = outsideEarRecess, outsideRecess = insideEarRecess);
+        shift_angled(r = r1, angle = angle_connection)
+        mirror([1,0,0]){
+          // side
+          angled_thing(r = r2, angle = angle_side, insideRecess = insideEarRecess, outsideRecess = outsideEarRecess);
+          // tip
+          shift_angled(r = r2, angle = angle_side )
+          angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side), insideRecess = insideEarRecess, outsideRecess = outsideEarRecess);
+        }
+      }
+      
+      headbandRecessDepth = (headbandRecess ? recessDepth : 0);
+      translate([-width/2 + headbandRecessDepth,0,0]){
+      scale([cableHoleAspect,1,1]) {
+      rotate([-90,0,0])
+      cylinder(h = 1000, r=cableHole/2, $fn=16);
+      
+      translate([-cableHole/2,0,0])
+      cube([cableHole,1000,10] * (cableHoleOpen ? 1 : 0));
+
+      translate([-cableHole/2,0,0])
+      rotate([0,headbandRecessDepth != 0 ? -asin( (headbandRecessDepth/cableHoleAspect)/ (height/2)) : 0,0])
+      cube([cableHole,1000,10] * (cableHoleOpen ? 1 : 0));
+      }
+      }
       }
     }
 }
