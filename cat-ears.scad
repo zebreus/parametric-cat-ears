@@ -242,16 +242,19 @@ module ear(start_angle=0){
     tip_radius = earTipWidth /2 / sin(angle_tip) ;
 
     mirror_copy([1,0,0])
-    translate([earWidth/2,0,0]) 
+    translate([earWidth/2,0,0])
     rotate([0,0,earSideAngle])
     mirror([1,0,0])
     rotate([0,0,-start_angle]){
-    angled_thing(r = r1, angle = angle_connection, recessSide = "inner");
+      connector_h = (height - recessWidth)/2;
+      translate([0, 0, (-height+connector_h)/2]) angled_thing(r=r1, angle = angle_connection, h=connector_h);
+
+
     shift_angled(r = r1, angle = angle_connection)
     mirror([1,0,0]){
-    angled_thing(r = r2, angle =  angle_side);
+      angled_thing(r = r2, angle =  angle_side, recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
     shift_angled(r = r2, angle = angle_side )
-    angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side)  );
+      angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side), recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
     }
     }
 }
