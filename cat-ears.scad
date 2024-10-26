@@ -246,16 +246,22 @@ module ear(start_angle=0){
     rotate([0,0,earSideAngle])
     mirror([1,0,0])
     rotate([0,0,-start_angle]){
+      // Attachment of ear to headband -- base-only section for leading wires/LED strip through
       connector_h = (height - recessWidth)/2;
       translate([0, 0, (-height+connector_h)/2]) angled_thing(r=r1, angle = angle_connection, h=connector_h);
 
+      gap_angle = 0.6;
 
-    shift_angled(r = r1, angle = angle_connection)
-    mirror([1,0,0]){
-      angled_thing(r = r2, angle =  angle_side, recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
-    shift_angled(r = r2, angle = angle_side )
-      angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side), recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
-    }
+      shift_angled(r = r1, angle = angle_connection)
+        mirror([1,0,0]){
+        // a bit more space for electronics insertion
+        translate([0, 0, (-height+connector_h)/2]) angled_thing(r = r2, angle = gap_angle, h=connector_h);
+        // long edge
+        shift_angled(r = r2, angle = gap_angle) angled_thing(r = r2, angle = angle_side-gap_angle, recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
+        // tip
+        shift_angled(r = r2, angle = angle_side )
+          angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side), recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
+      }
     }
 }
 
