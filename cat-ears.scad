@@ -59,6 +59,13 @@ enableRudelblinken = false;
 
 /*[ LED recess ]*/
 
+// Where the recess for LED strips will be generated
+recess = "none"; //["none", "full", "outside", "inside", "insideWithoutHeadband"]
+headbandRecess = recess == "outside" || recess == "full" || recess == "inside";
+outsideEarRecess = recess == "outside" || recess == "full";
+insideEarRecess = recess == "inside" || recess == "full" || recess == "insideWithoutHeadband";
+
+
 // How deep the recess should be
 recessDepth = 1.0; // [0.0:0.01:5.0]
 // How wide the recess should be
@@ -98,21 +105,30 @@ module mirror_copy(vector)
 }
 
 // recessSide can be "outer" or "inner"
-module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0, recessSide = "outer", recessDepth = 0, recessWidth = 0)
+module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0, outsideRecess = false, insideRecess = false)
 {
+    outsideRecessDepth = outsideRecess ? recessDepth : 0;
+    insideRecessDepth = insideRecess ? recessDepth : 0;
+
+    outsideRecessWidth = outsideRecess ? recessWidth : 0;
+    insideRecessWidth = insideRecess ? recessWidth : 0;
+
     translate([ -r, 0, 0 ])
     rotate_extrude(convexity = 10, $fa = 0.01, angle = angle)
     translate([ r, 0, 0 ])
-    mirror([recessSide == "inner" ? 1 : 0,0,0])
     polygon([
         [width/2, h/2],
         // [width/2, h/2 - recessWidth/2],
-        [width/2, min(h/2,recessWidth/2 + abs(recessDepth))],
-        [width/2 - recessDepth, recessWidth/2],
-        [width/2 - recessDepth, -recessWidth/2],
-        [width/2, -recessWidth/2],
+        [width/2, min(h/2,outsideRecessWidth/2 + abs(outsideRecessDepth))],
+        [width/2 - outsideRecessDepth, outsideRecessWidth/2],
+        [width/2 - outsideRecessDepth, -outsideRecessWidth/2],
+        [width/2, -outsideRecessWidth/2],
         [width/2, -h/2],
         [-width/2, -h/2],
+        [-width/2, -insideRecessWidth/2],
+        [-width/2 + insideRecessDepth, -insideRecessWidth/2],
+        [-width/2 + insideRecessDepth, insideRecessWidth/2],
+        [-width/2, min(h/2,insideRecessWidth/2 + abs(insideRecessDepth))],
         [-width/2, h/2]]);
     // square([ width, h ], center = true);
 
@@ -247,20 +263,14 @@ module ear(start_angle=0){
     mirror([1,0,0])
     rotate([0,0,-start_angle]){
       // Attachment of ear to headband -- base-only section for leading wires/LED strip through
-      connector_h = (height - recessWidth)/2;
-      translate([0, 0, (-height+connector_h)/2]) angled_thing(r=r1, angle = angle_connection, h=connector_h);
-
-      gap_angle = 0.6;
-
+      angled_thing(r=r1, angle = angle_connection, insideRecess = outsideEarRecess, outsideRecess = insideEarRecess);
       shift_angled(r = r1, angle = angle_connection)
-        mirror([1,0,0]){
-        // a bit more space for electronics insertion
-        translate([0, 0, (-height+connector_h)/2]) angled_thing(r = r2, angle = gap_angle, h=connector_h);
-        // long edge
-        shift_angled(r = r2, angle = gap_angle) angled_thing(r = r2, angle = angle_side-gap_angle, recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
+      mirror([1,0,0]){
+        // side
+        angled_thing(r = r2, angle = angle_side, insideRecess = insideEarRecess, outsideRecess = outsideEarRecess);
         // tip
         shift_angled(r = r2, angle = angle_side )
-          angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side), recessWidth=recessWidth, recessDepth=recessDepth, recessSide="inner");
+        angled_thing(r = tip_radius, angle = angle_tip, spikeOffset = r1 * sin(angle_side), insideRecess = insideEarRecess, outsideRecess = outsideEarRecess);
       }
     }
 }
@@ -315,11 +325,11 @@ module horn(start_angle=0){
     rotate([0,0,earSideAngle])
     mirror([1,0,0])
     rotate([0,0,-start_angle]){
-    angled_thing(r = r1, angle = angle_connection, recessSide = "inner");
+    angled_thing(r = r1, angle = angle_connection, recessSide = "inner", insideRecess = outsideEarRecess, outsideRecess = insideEarRecess);
     shift_angled(r = r1, angle = angle_connection)
     mirror([1,0,0]){
     mirror([1,0,0])
-    angled_thing(r = r2-hornyDiff, angle =  180);
+    angled_thing(r = r2-hornyDiff, angle =  180, insideRecess = outsideEarRecess, outsideRecess = insideEarRecess);
     }
     }
     
@@ -328,10 +338,10 @@ module horn(start_angle=0){
     rotate([0,0,earSideAngle])
     mirror([1,0,0])
     rotate([0,0,-start_angle]){
-    angled_thing(r = r1, angle = angle_connection, recessSide = "inner");
+    angled_thing(r = r1, angle = angle_connection, recessSide = "inner", insideRecess = outsideEarRecess, outsideRecess = insideEarRecess);
     shift_angled(r = r1, angle = angle_connection)
     mirror([1,0,0]){
-    angled_thing(r = r2, angle =  180);
+    angled_thing(r = r2, angle =  180, insideRecess = insideEarRecess, outsideRecess = outsideEarRecess);
     }
     }
     }
@@ -340,7 +350,7 @@ module horn(start_angle=0){
 
 module lower_half(enableRudelblinken = enableRudelblinken) {
      // Main beam until the rudelblinke board
-    angled_thing(r = bottomRadius, angle = min(0,-bottomAngle + rudelblinken_board_angle_length));
+    angled_thing(r = bottomRadius, angle = min(0,-bottomAngle + rudelblinken_board_angle_length), outsideRecess = headbandRecess);
 
     bottom_circumference = bottomRadius * 2 * PI;
     rudelblinken_board_angle_length = enableRudelblinken ? (360 * (rudelblinken_board_length / bottom_circumference)) : 0;
@@ -363,7 +373,7 @@ module second_lower_half_with_rudelblinken() {
         {
             shift_angled(r = bottomRadius, angle = -rudelblinken_board_angle_length)
             round_end_thing();
-            angled_thing(r = bottomRadius, angle = -rudelblinken_board_angle_length);
+            angled_thing(r = bottomRadius, angle = -rudelblinken_board_angle_length, outsideRecess = headbandRecess);
             rotate([ 180, 0, 0 ])
             rotate([ 0, 90, 0 ])
             rudelblinken(h = width);
@@ -406,7 +416,7 @@ module second_lower_half_with_rudelblinken() {
 module second_lower_half_without_rudelblinken(angle) {
     shift_angled(r = bottomRadius, angle = -angle)
     round_end_thing();
-    angled_thing(r = bottomRadius, angle = -angle);
+    angled_thing(r = bottomRadius, angle = -angle, outsideRecess = headbandRecess);
 }
 
 
@@ -414,7 +424,7 @@ module second_lower_half_without_rudelblinken(angle) {
 module round_end_thing() {
     rotate([ 0, 0, 180 ])
     {
-        angled_thing(r = endRadius, angle = bottomAngle, recessSide = "inner");
+        angled_thing(r = endRadius, angle = bottomAngle, insideRecess = headbandRecess);
         shift_angled(r = endRadius, angle = bottomAngle)
         cylinder(d = width, h = height, $fn = 16, center = true);
     }
@@ -456,9 +466,9 @@ mirror([side == "left" ? 1 : 0,0,0])
 translate([0,upperRadius,0])
 rotate([0,0,90])
 {
-    angled_thing(r = upperRadius, angle = -upperAngle, spikesAngle = -min(spikesAngle, upperAngle));
+    angled_thing(r = upperRadius, angle = -upperAngle, spikesAngle = -min(spikesAngle, upperAngle), outsideRecess = headbandRecess);
     shift_angled(r = upperRadius, angle = -upperAngle){
-        angled_thing(r = middleRadius, angle = -middleAngle, spikesAngle = -min(max(spikesAngle-upperAngle, 0), middleAngle, spikeOffset = (upperAngle/upperRadius)*2*PI*upperRadius));
+        angled_thing(r = middleRadius, angle = -middleAngle, spikesAngle = -min(max(spikesAngle-upperAngle, 0), middleAngle, spikeOffset = (upperAngle/upperRadius)*2*PI*upperRadius), outsideRecess = headbandRecess);
         shift_angled(r = middleRadius, angle = -middleAngle)
         lower_half(enableRudelblinken = (enableRudelblinken && (side=="left")));
     }
