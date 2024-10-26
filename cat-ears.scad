@@ -98,7 +98,7 @@ module mirror_copy(vector)
 }
 
 // recessSide can be "outer" or "inner"
-module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0, recessSide = "outer")
+module angled_thing(r, angle, h = height, spikesAngle = 0, spikeOffset = 0, recessSide = "outer", recessDepth = 0, recessWidth = 0)
 {
     translate([ -r, 0, 0 ])
     rotate_extrude(convexity = 10, $fa = 0.01, angle = angle)
