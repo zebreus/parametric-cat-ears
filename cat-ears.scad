@@ -72,9 +72,9 @@ recessDepth = 1.0; // [0.0:0.01:5.0]
 recessWidth = 2.8; // [0:0.1:20]
 
 // Puch a hole into the base of the ears for for cables to the inside
-cableHole = 3.0;
+cableHole = 0.0; // [0:0.1:10]
 // If the cable hole should be open
-cableHoleOpen = true;
+cableHoleOpen = false;
 // Make the cable hole extra big
 cableHoleAspect = 1;
 
