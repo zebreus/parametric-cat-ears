@@ -102,7 +102,7 @@ hornyDiff = 0; // [-100:0.5:100]
 
 
 /*[ Hidden ]*/
-rudelblinken_board_height = 1.7;
+rudelblinken_board_height = 1;
 rudelblinken_board_length = 34.2;
 
 module mirror_copy(vector)
@@ -401,8 +401,11 @@ module second_lower_half_with_rudelblinken() {
             round_end_thing();
             angled_thing(r = bottomRadius, angle = -rudelblinken_board_angle_length, outsideRecess = headbandRecess);
             rotate([ 180, 0, 0 ])
-            rotate([ 0, 90, 0 ])
-            rudelblinken(h = width);
+            rotate([ 0, 90, 0 ]){
+                rudelblinken(h = width);
+                translate([-0.5,0,0])
+                rudelblinken(h = width);
+            }
         }
                 
         // Subtract the inner part of the hull that gets filled by the hull operation above
