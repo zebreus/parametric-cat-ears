@@ -3,7 +3,7 @@
 // Radius of the circle that makes up the upper half of the headband
 upperRadius = 56; // [20:120]
 // This angle determines the size of the upper half
-upperAngle = 80; // [40:140]
+upperAngle = 70; // [40:140]
 // Radius of the circle that makes up the middle part of the headband
 middleRadius = 80; // [20:120]
 // This angle determines the size of the middle part of the headband
