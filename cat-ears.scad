@@ -18,7 +18,7 @@ endRadius = 10; // [0:50]
 // Height of the headband
 height = 6; // [0:0.1:30]
 // Width of the headband
-width = 2.5; // [0:0.1:30]
+width = 3.2; // [0:0.1:30]
 
 /*[ Ears ]*/
 
