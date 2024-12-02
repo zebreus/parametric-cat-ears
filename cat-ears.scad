@@ -1,17 +1,17 @@
 /*[ Headband ]*/
 
 // Radius of the circle that makes up the upper half of the headband
-upperRadius = 56; // [20:120]
+upperRadius = 65; // [20:120]
 // This angle determines the size of the upper half
-upperAngle = 70; // [40:140]
+upperAngle = 50; // [10:140]
 // Radius of the circle that makes up the middle part of the headband
-middleRadius = 80; // [20:120]
+middleRadius = 60; // [20:120]
 // This angle determines the size of the middle part of the headband
 middleAngle = 30; // [0:90]
 // This angle determines the size of the bottom half
-bottomAngle = 30; // [0:120]
+bottomAngle = 55; // [0:120]
 // Radius of the partial circles of the bottom half
-bottomRadius = 100; // [20:600]
+bottomRadius = 97; // [20:600]
 // Radius of the end bits at the very bottom
 endRadius = 10; // [0:50]
 
@@ -28,9 +28,9 @@ earPositionAngle = 40; // [0:90]
 // Radius of the curvature of the ears sides
 earRadius = 120; // [10:500]
 // Roughly how the ears are
-earLength = 45; // [10:500]
+earLength = 50; // [10:500]
 // The width of the ears
-earWidth = 50; // [10:120]
+earWidth = 55; // [10:120]
 // How wide the tip of the ear is
 earTipWidth = 5; // [2:40]
 // How big the angle of the ears base is
@@ -67,9 +67,9 @@ insideEarRecess = recess == "inside" || recess == "full" || recess == "insideWit
 
 
 // How deep the recess should be
-recessDepth = 1.0; // [0.0:0.01:5.0]
+recessDepth = 1.2; // [0.0:0.01:5.0]
 // How wide the recess should be
-recessWidth = 2.8; // [0:0.1:20]
+recessWidth = 3; // [0:0.1:20]
 
 // Puch a hole into the base of the ears for for cables to the inside
 cableHole = 0.0; // [0:0.1:10]
