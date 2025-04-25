@@ -402,9 +402,9 @@ module second_lower_half_with_rudelblinken() {
             angled_thing(r = bottomRadius, angle = -rudelblinken_board_angle_length, outsideRecess = headbandRecess);
             rotate([ 180, 0, 0 ])
             rotate([ 0, 90, 0 ]){
-                rudelblinken(h = width);
+                rudelblinken(h = width, extra_length = true);
                 translate([-0.5,0,0])
-                rudelblinken(h = width);
+                rudelblinken(h = width, extra_length = true);
             }
         }
                 
@@ -420,20 +420,20 @@ module second_lower_half_with_rudelblinken() {
         translate([0,0, width / 2 - board_height_with_recess /2]){
         rudelblinken(h = board_height_with_recess + 0.01);
         // Dirty hack to have no overhang, when the pcb is slimmer than height
-        translate([height/2,0,0]) 
+        translate([0.01,0,0]) 
         rudelblinken(h = board_height_with_recess + 0.01);
         }
         
         // USB c port cutout
-        translate([width / 2 - recessDepth,-rudelblinken_board_length-20+0.1,-1.5]){
-            translate([0,0,1.5]) 
-            cube([20,20,6]);
-            translate([1.5,0,0]) 
-            cube([20,20,9]);
-            translate([1.5,0,1.5]) 
+        translate([width / 2 - recessDepth,-rudelblinken_board_length-20+0.1,-2.1]){
+            translate([-0.5,0,1.25]) 
+            cube([20,20,6.5]);
+            translate([1,0,-0.25]) 
+            cube([20,20,9.5]);
+            translate([1,0,1.25]) 
             rotate([-90,0,0])
             cylinder(h=20,d=3,$fn=20);
-            translate([1.5,0,7.5]) 
+            translate([1,0,7.75]) 
             rotate([-90,0,0])
             cylinder(h=20,d=3,$fn=20);
         }
@@ -471,22 +471,39 @@ module spike()
 
 
 
-module rudelblinken_shape(center = true)
+module rudelblinken_shape(center = true, extra_length = false)
 {
+    if (extra_length) {
     translate([ -2.5,0,0 ]) polygon([
         [ 0, 0 ],
         [ 5, 0 ],
+        [ 5, -5 ],
+        [ 5.7, -5 ],
         // [ 5, 5.2 ],
         // [ 6.5, 6.2 ],
+        [ 10.5, 11.4 ],
+        [ 10.1, 13.4 ],
         [ 10.1, 14.4 ],
-        [ 10.1, 34.2 ],
-        [ 0, 34.2 ],
+        [ 10.1, 34.5 ],
+        [ 0, 34.5 ],
     ]);
+    } else {
+         translate([ -2.6,0,0 ]) polygon([
+        [ 0, -5 ],
+        [ 5.3, -5 ],
+        [ 5.3, 0 ],
+        // [ 5, 5.2 ],
+        // [ 6.5, 6.2 ],
+        [ 10.6, 13.4 ],
+        [ 10.3, 34.5 ],
+        [ 0, 34.5 ],
+    ]);
+    }
 }
-module rudelblinken(h = rudelblinken_board_height, center = true)
+module rudelblinken(h = rudelblinken_board_height, center = true, extra_length = false)
 {
     translate([ 0, 0, center ? -h / 2 : 0 ]) linear_extrude(height = h)
-        rudelblinken_shape(center);
+        rudelblinken_shape(center, extra_length);
 }
 
 
